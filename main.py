@@ -44,7 +44,7 @@ async def accept_requests(client, message):
 
     # Check if the user is an admin
     admin_ids = []
-
+    
     async for admin in client.get_chat_members(chat_id, filter=ChatMembersFilter.ADMINISTRATORS):
         admin_ids.append(admin.user.id)
 
@@ -53,28 +53,31 @@ async def accept_requests(client, message):
         pending_requests = []
         async for member in client.get_chat_members(chat_id, filter=ChatMembersFilter.RESTRICTED):
             pending_requests.append(member)
+            print(f"Pending request from: {member.user.username}")
 
         for member in pending_requests:
-            # Accept the request by promoting the member
-            await client.promote_chat_member(
-                chat_id=chat_id,
-                user_id=member.user.id,
-                can_change_info=True,
-                can_post_messages=True,
-                can_edit_messages=True,
-                can_delete_messages=True,
-                can_invite_users=True,
-                can_restrict_members=True,
-                can_pin_messages=True,
-                can_promote_members=True,
-                can_manage_video_chats=True,
-            )
-            print(f"Accepted request from {member.user.username} in chat {chat_id}")
+            try:
+                # Accept the request by promoting the member
+                await client.promote_chat_member(
+                    chat_id=chat_id,
+                    user_id=member.user.id,
+                    can_change_info=True,
+                    can_post_messages=True,
+                    can_edit_messages=True,
+                    can_delete_messages=True,
+                    can_invite_users=True,
+                    can_restrict_members=True,
+                    can_pin_messages=True,
+                    can_promote_members=True,
+                    can_manage_video_chats=True,
+                )
+                print(f"Accepted request from {member.user.username} in chat {chat_id}")
+            except Exception as e:
+                print(f"Failed to promote {member.user.username}: {e}")
 
         await message.reply("All pending requests have been accepted.")
     else:
         await message.reply("You are not an admin in this group.")
-
 
 if __name__ == "__main__":
     app.run()
