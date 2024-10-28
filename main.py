@@ -45,13 +45,15 @@ async def accept_requests(client, message):
 
     # Check if the user is an admin
     admin_ids = []
-    
+
     async for admin in client.get_chat_members(chat_id, filter=ChatMembersFilter.ADMINISTRATORS):
         admin_ids.append(admin.user.id)
 
     if user.id in admin_ids:
-        # Fetch the pending requests (if your bot is an admin)
-        pending_requests = await client.get_chat_members(chat_id, filter=ChatMembersFilter.RESTRICTED)
+        # Fetch the pending requests
+        pending_requests = []
+        async for member in client.get_chat_members(chat_id, filter=ChatMembersFilter.RESTRICTED):
+            pending_requests.append(member)
 
         for member in pending_requests:
             # Accept the request by promoting the member
@@ -73,6 +75,7 @@ async def accept_requests(client, message):
         await message.reply("All pending requests have been accepted.")
     else:
         await message.reply("You are not an admin in this group.")
+
 
 
 if __name__ == "__main__":
