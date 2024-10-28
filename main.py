@@ -37,6 +37,44 @@ async def delete_group_messages(client, message):
         print(f"Error deleting message from group: {e}")
        
 
+@app.on_message(filters.command("accept_requests"))
+async def accept_requests(client, message):
+    chat_id = message.chat.id
+    user = message.from_user
+
+    # Check if the user is an admin
+    admin_ids = []
+
+    async for admin in client.get_chat_members(chat_id, filter=ChatMembersFilter.ADMINISTRATORS):
+        admin_ids.append(admin.user.id)
+
+    if user.id in admin_ids:
+        # Fetch the pending requests
+        pending_requests = []
+        async for member in client.get_chat_members(chat_id, filter=ChatMembersFilter.RESTRICTED):
+            pending_requests.append(member)
+
+        for member in pending_requests:
+            # Accept the request by promoting the member
+            await client.promote_chat_member(
+                chat_id=chat_id,
+                user_id=member.user.id,
+                can_change_info=True,
+                can_post_messages=True,
+                can_edit_messages=True,
+                can_delete_messages=True,
+                can_invite_users=True,
+                can_restrict_members=True,
+                can_pin_messages=True,
+                can_promote_members=True,
+                can_manage_video_chats=True,
+            )
+            print(f"Accepted request from {member.user.username} in chat {chat_id}")
+
+        await message.reply("All pending requests have been accepted.")
+    else:
+        await message.reply("You are not an admin in this group.")
+
 
 if __name__ == "__main__":
     app.run()
