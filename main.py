@@ -34,7 +34,7 @@ async def delete_group_messages(client, message):
         print(f"Deleted message from group: {message.text}")
     except Exception as e:
         print(f"Error deleting message from group: {e}")
-
+        
 
 
 @app.on_message(filters.command("accept_requests"))
@@ -42,11 +42,12 @@ async def accept_requests(client, message):
     chat_id = message.chat.id
     user = message.from_user
 
-    # Check if the user is an admin
-    if user.id in [admin.user.id for admin in await client.get_chat_administrators(chat_id)]:
+    admin_ids = [admin.user.id async for admin in client.get_chat_members(chat_id, filter=ChatMembersFilter.ADMINISTRATORS)]
+     
+    if user.id in admin_ids:
         # Fetch the pending requests (if your bot is an admin)
-        pending_requests = await client.get_chat_members(chat_id, filter=ChatMembersFilter.RESTRICTED)  # Updated filter
-
+        pending_requests = await client.get_chat_members(chat_id, filter=ChatMembersFilter.RESTRICTED)
+        
         for member in pending_requests:
             # Accept the request by promoting the member
             await client.promote_chat_member(
