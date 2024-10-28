@@ -1,5 +1,7 @@
 from pyrogram import Client, filters
+import os
 import asyncio
+from pyrogram.enums import ChatMembersFilter
 
 API_ID = "8012239"
 API_HASH = "171e6f1bf66ed8dcc5140fbe827b6b08"
@@ -9,6 +11,7 @@ CHANNEL_IDS = [-1002206045192]
 GROUP_IDS = [-1002068352969, -1001930038276]
 
 app = Client("ansh_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+
 
 @app.on_message(filters.command("start"))
 async def start(client, message):
@@ -32,21 +35,17 @@ async def delete_group_messages(client, message):
     except Exception as e:
         print(f"Error deleting message from group: {e}")
 
+
+
 @app.on_message(filters.command("accept_requests"))
 async def accept_requests(client, message):
     chat_id = message.chat.id
     user = message.from_user
 
     # Check if the user is an admin
-    is_admin = False
-    async for admin in client.get_chat_members(chat_id, filter="administrators"):
-        if admin.user.id == user.id:
-            is_admin = True
-            break
-
-    if is_admin:
+    if user.id in [admin.user.id for admin in await client.get_chat_administrators(chat_id)]:
         # Fetch the pending requests (if your bot is an admin)
-        pending_requests = await client.get_chat_members(chat_id, filter="restricted")
+        pending_requests = await client.get_chat_members(chat_id, filter=ChatMembersFilter.RESTRICTED)  # Updated filter
 
         for member in pending_requests:
             # Accept the request by promoting the member
