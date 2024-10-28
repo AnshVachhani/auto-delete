@@ -1,3 +1,4 @@
+
 from pyrogram import Client, filters
 import os
 import asyncio
@@ -42,12 +43,16 @@ async def accept_requests(client, message):
     chat_id = message.chat.id
     user = message.from_user
 
-    admin_ids = [admin.user.id async for admin in client.get_chat_members(chat_id, filter=ChatMembersFilter.ADMINISTRATORS)]
-     
+    # Check if the user is an admin
+    admin_ids = []
+    
+    async for admin in client.get_chat_members(chat_id, filter=ChatMembersFilter.ADMINISTRATORS):
+        admin_ids.append(admin.user.id)
+
     if user.id in admin_ids:
         # Fetch the pending requests (if your bot is an admin)
         pending_requests = await client.get_chat_members(chat_id, filter=ChatMembersFilter.RESTRICTED)
-        
+
         for member in pending_requests:
             # Accept the request by promoting the member
             await client.promote_chat_member(
@@ -69,6 +74,6 @@ async def accept_requests(client, message):
     else:
         await message.reply("You are not an admin in this group.")
 
+
 if __name__ == "__main__":
     app.run()
-    print("Bot started...")
