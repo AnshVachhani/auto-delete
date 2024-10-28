@@ -66,7 +66,7 @@ async def accept_requests(client, message):
 
         await message.reply("All pending requests have been accepted.")
     else:
-        await message.reply("You are not an admin in this group.
+        await message.reply("You are not an admin in this group.")
 
 if __name__ == "__main__":
     app.run()
