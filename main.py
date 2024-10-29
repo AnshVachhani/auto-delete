@@ -14,6 +14,27 @@ GROUP_IDS = [-1002068352969, -1001930038276]
 app = Client("ansh_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 
+# User account ka session create karein
+apps = Client("user_account_session", api_id="28623575", api_hash="38defc75e5be3b8b50821b7faa525e34")
+
+GROUP_ID = -1001906601472  # Group ID jisme join requests accept karni hain
+
+@apps.on_message(filters.command("accept"))
+async def accept_old_requests(client, message):
+    if message.from_user.id == 5660839376:  # Sirf authorized user hi use kar sakta hai
+        try:
+            # Restricted members ko accept karein
+            async for member in client.get_chat_members(GROUP_ID, filter=ChatMembersFilter.RESTRICTED):
+                await client.approve_chat_join_request(GROUP_ID, member.user.id)
+                print(f"Accepted join request from {member.user.username}")
+                
+            await message.reply("Sabhi pending join requests accept kar di gayi hain.")
+        except Exception as e:
+            await message.reply(f"Kuch error aaya: {e}")
+            print(f"Error: {e}")
+    else:
+        await message.reply("Sirf authorized user hi is command ko use kar sakta hai.")
+
 @app.on_message(filters.command("start"))
 async def start(client, message):
     await message.reply("Hello! Welcome to the bot.")
