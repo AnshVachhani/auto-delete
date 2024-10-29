@@ -1,12 +1,4 @@
 
-
-API_ID = "8012239"
-API_HASH = "171e6f1bf66ed8dcc5140fbe827b6b08"
-BOT_TOKEN = "7877654567:AAFLDysG33pCVLnUqfMwgTfLcKDKBfv_taQ"
-
-CHANNEL_IDS = [-1002206045192]
-GROUP_IDS = [-1002068352969, -1001930038276]
-
 import asyncio
 from pyrogram import Client, filters
 from pyrogram.types import Message
