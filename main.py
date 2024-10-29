@@ -1,85 +1,42 @@
 
-from pyrogram import Client, filters
-import os
-import asyncio
-from pyrogram.enums import ChatMembersFilter
 
 API_ID = "8012239"
 API_HASH = "171e6f1bf66ed8dcc5140fbe827b6b08"
-BOT_TOKEN = "8164925669:AAFrDltyWMahWLEtvnVbdx8-s1PjC-DpL8E"
+BOT_TOKEN = "7877654567:AAFLDysG33pCVLnUqfMwgTfLcKDKBfv_taQ"
 
 CHANNEL_IDS = [-1002206045192]
 GROUP_IDS = [-1002068352969, -1001930038276]
 
-app = Client("ansh_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+import asyncio
+from pyrogram import Client, filters
+from pyrogram.types import Message
 
+# Initialize the user client (you) and the bot client
+user_client = Client("user_account", api_id="28623575", api_hash="38defc75e5be3b8b50821b7faa525e34")
+bot_client = Client("bot_account", bot_token="7877654567:AAFLDysG33pCVLnUqfMwgTfLcKDKBfv_taQ")
 
-# User account ka session create karein
+async def approve_join_requests(chat_id):
+    async with user_client, bot_client:
+        # Fetch pending join requests
+        join_requests = await user_client.get_chat_join_requests(chat_id)
+        
+        # Approve each request
+        for request in join_requests:
+            user_id = request.user.id
+            print(f"Approving join request for user {user_id}")
+            await bot_client.approve_chat_join_request(chat_id, user_id)
+            await asyncio.sleep(1)  # Add a small delay to avoid rate limits
 
-@app.on_message(filters.command("start"))
-async def start(client, message):
-    await message.reply("Hello! Welcome to the bot.")
-
-@app.on_message(filters.chat(CHANNEL_IDS))
-async def delete_channel_messages(client, message):
-    try:
-        await asyncio.sleep(5)  
-        await message.delete()
-        print(f"Deleted message from channel: {message.text}") 
-    except Exception as e:
-        print(f"Error deleting message from channel: {e}")
-
-@app.on_message(filters.chat(GROUP_IDS))
-async def delete_group_messages(client, message):
-    try:
-        await asyncio.sleep(6)
-        await message.delete()
-        print(f"Deleted message from group: {message.text}")
-    except Exception as e:
-        print(f"Error deleting message from group: {e}")
-       
-
-@app.on_message(filters.command("accept_requests"))
-async def accept_requests(client, message):
+# Command handler for the bot
+@bot_client.on_message(filters.command("accept") & filters.group)
+async def start_approving_requests(client: Client, message: Message):
     chat_id = message.chat.id
-    user = message.from_user
+    await message.reply("Starting to approve join requests...")
+    await approve_join_requests(chat_id)
+    await message.reply("All pending join requests approved!")
 
-    # Check if the user is an admin
-    admin_ids = []
+
     
-    async for admin in client.get_chat_members(chat_id, filter=ChatMembersFilter.ADMINISTRATORS):
-        admin_ids.append(admin.user.id)
-
-    if user.id in admin_ids:
-        # Fetch the pending requests
-        pending_requests = []
-        async for member in client.get_chat_members(chat_id, filter=ChatMembersFilter.RESTRICTED):
-            pending_requests.append(member)
-            print(f"Pending request from: {member.user.username}")
-
-        for member in pending_requests:
-            try:
-                # Accept the request by promoting the member
-                await client.promote_chat_member(
-                    chat_id=chat_id,
-                    user_id=member.user.id,
-                    can_change_info=True,
-                    can_post_messages=True,
-                    can_edit_messages=True,
-                    can_delete_messages=True,
-                    can_invite_users=True,
-                    can_restrict_members=True,
-                    can_pin_messages=True,
-                    can_promote_members=True,
-                    can_manage_video_chats=True,
-                )
-                print(f"Accepted request from {member.user.username} in chat {chat_id}")
-            except Exception as e:
-                print(f"Failed to promote {member.user.username}: {e}")
-
-        await message.reply("All pending requests have been accepted.")
-    else:
-        await message.reply("You are not an admin in this group.")
-
 if __name__ == "__main__":
-    app.run()
+    user_client.start()
+    bot_client.run()
