@@ -3,8 +3,8 @@ from pyrogram import Client, filters
 from pyrogram.types import Message
 
 # Initialize the user client (you) and the bot client
-user_client = Client("user_account", api_id="28623575", api_hash="38defc75e5be3b8b50821b7faa525e34")
-bot_client = Client("bot_account", bot_token="7877654567:AAFLDysG33pCVLnUqfMwgTfLcKDKBfv_taQ")
+user_client = Client("usner_account", api_id="28623575", api_hash="38defc75e5be3b8b50821b7faa525e34")
+bot_client = Client("both_account", bot_token="7877654567:AAFLDysG33pCVLnUqfMwgTfLcKDKBfv_taQ")
 
 async def approve_join_requests(chat_id):
     # Fetch pending join requests
